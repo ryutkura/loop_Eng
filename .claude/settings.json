@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python scripts/check.py)",
+      "Bash(python scripts/run.py *)",
+      "Bash(python scripts/compare.py *)",
+      "Bash(python scripts/new_paper.py *)"
+    ],
+    "deny": [
+      "Bash(python scripts/lock.py *)",
+      "Bash(python scripts/lock.py)",
+      "Bash(python scripts/adapt_mode.py *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/guard.py\""
+          }
+        ]
+      }
+    ]
+  }
+}

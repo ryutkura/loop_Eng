@@ -1,0 +1,9 @@
+{
+  "example_es": {
+    "papers/example_es/claims.md": "d286a670c9c3713ca0581217340b704a3770ee15a789edf7129b8ee30da4fc83",
+    "papers/example_es/targets.json": "1863b8dff0a3edbcba709c1b64b8beeffe6b05523aff2d4a9417ea1cd95c8bc2",
+    "tests/example_es/claims/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/example_es/claims/test_c1_step_size.py": "5d3fd0357fb2fc906d65219f084aeb7191fbd48c633f73c33ae0579a56f37f80",
+    "tests/example_es/claims/test_c2_invariance.py": "19beb5afce587d13cd4702ea5c8665a61aac4801f7d8d339600a9966a14ba121"
+  }
+}

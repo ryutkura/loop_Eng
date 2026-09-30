@@ -1,0 +1,21 @@
+{
+  "paper": "example_es",
+  "claim": "C3",
+  "hypothesis": "論文5章の設定をそのまま使い、c は decisions.md D1 の 0.85 とする",
+  "entry": "src.example_es.algorithm.es:run_experiment",
+  "params": {
+    "dim": 10,
+    "init_low": -5.0,
+    "init_high": 5.0,
+    "sigma0": 1.0,
+    "window": 10,
+    "c": 0.85,
+    "max_evals": 20000,
+    "f_target": 1e-8
+  },
+  "seeds": [0, 1, 2, 3, 4],
+  "aggregate": {
+    "median_evals_to_target": ["median", "evals_to_target"],
+    "reach_rate": ["rate", "reached"]
+  }
+}

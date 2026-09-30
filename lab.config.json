@@ -1,0 +1,24 @@
+{
+  "project_name": "algorithm-lab",
+  "dirs": {
+    "sources": "papers",
+    "src": "src",
+    "tests": "tests",
+    "experiments": "experiments",
+    "runs": "runs",
+    "journal": "journal",
+    "sandbox": "sandbox",
+    "agent": ".agent"
+  },
+  "check_commands": [
+    ["python", "-m", "unittest", "discover", "-s", "tests", "-t", ".", "-p", "test_*.py"]
+  ],
+  "pure_layer": {
+    "dir_name": "core",
+    "forbidden_imports": ["os", "sys", "io", "pathlib", "subprocess", "shutil", "json", "time", "datetime", "socket", "random", "requests", "scripts"]
+  },
+  "budget": {
+    "max_outer_iterations_per_claim": 5,
+    "max_runs_per_claim": 10
+  }
+}

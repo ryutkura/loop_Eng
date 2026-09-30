@@ -1,0 +1,9 @@
+{
+  "C3": {
+    "metric": "median_evals_to_target",
+    "op": "approx",
+    "value": 1000,
+    "rel_tol": 0.2,
+    "source": "表1"
+  }
+}

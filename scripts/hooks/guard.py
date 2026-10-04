@@ -20,11 +20,14 @@ PROTECTED_PATTERNS = [
     "runs/*",
     "papers/*/paper.md",
     ".agent/goal.md",
+    ".agent/guardrails.md",
+    ".agent/REVIEWER.md",
     ".agent/locks.json",
     ".agent/ADAPT_MODE",
     "lab.config.json",
     "scripts/*",
     ".claude/settings.json",
+    ".claude/agents/*",
 ]
 
 DANGEROUS_SHELL = re.compile(r"\b(rm|mv|cp|del|erase|move|rename|sed\s+-i|Remove-Item|Move-Item|Set-Content|Out-File|tee)\b|>")

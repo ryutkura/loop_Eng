@@ -22,7 +22,7 @@ Claude Code・Hermes Agent など、どのエージェントもこのファイ�
 | --- | --- | --- |
 | 📚 論文保管庫 | `papers/<名前>/paper.md` | 人間だけ |
 | 　 主張と目標値 | `papers/<名前>/claims.md`・`targets.json` | エージェントが下書き → **人間が lock.py で承認した後は編集禁止** |
-| 🧭 司令室 | `.agent/goal.md`・`guardrails.md` | 人間だけ |
+| 🧭 司令室 | `.agent/goal.md`・`guardrails.md`・`REVIEWER.md` | 人間だけ |
 | 　 | `.agent/progress.md`・`tasks/` | エージェント |
 | 🛠 開発室 | `src/<名前>/` | エージェント |
 | 🧪 テスト場 | `tests/<名前>/claims/` | エージェントが下書き → **承認後は編集禁止** |
@@ -31,6 +31,7 @@ Claude Code・Hermes Agent など、どのエージェントもこのファイ�
 | 🏃 実行場 | `experiments/<名前>/*.json` | エージェント（実験の設定だけ） |
 | 📦 結果の格納庫 | `runs/` | **`scripts/run.py` だけ**。手で作らない・直さない・消さない |
 | 📓 記録室 | `journal/` | エージェント（追記のみ） |
+| 　 | `journal/reviews/` | エージェント（Reviewer の報告を**そのまま**保存するだけ。編集しない） |
 | ⚙ 仕組み | `scripts/`・`lab.config.json`・`.claude/` | 人間だけ（ADAPT 中を除く） |
 
 フォルダ名は `lab.config.json` の `dirs` が正本です。ADAPT で名前が変わっている場合はそちらに従ってください。
@@ -41,8 +42,9 @@ Claude Code・Hermes Agent など、どのエージェントもこのファイ�
 | --- | --- | --- |
 | `python scripts/new_paper.py <名前>` | 新しい題材のフォルダ一式を作る | エージェント |
 | `python scripts/check.py` | 形式の検査（ロック・結果の改変・依存方向・テスト） | エージェント。**内側のループで毎周** |
-| `python scripts/run.py <実験.json>` | 実験を実行し `runs/` に記録 | エージェント |
-| `python scripts/compare.py <runフォルダ>` | 結果を承認済みの目標値と比べる | エージェント |
+| `python scripts/ledger.py <名前> [<主張ID>]` | 仮説台帳（試した仮説・予測の当否・モード・次に許される手）を見る | エージェント・Reviewer。**外側のループで毎周** |
+| `python scripts/run.py <実験.json>` | 台帳の検査を通った実験だけを実行し `runs/` に記録 | エージェント |
+| `python scripts/compare.py <runフォルダ>` | 結果を承認済みの目標値と比べる（種のぶれも見る） | エージェント |
 | `python scripts/lock.py <名前>` | 主張・目標値・主張テストの承認 | **人間だけ** |
 
 ## 4. 絶対に守ること（理由と強制の仕組みは `.agent/guardrails.md`）
@@ -50,9 +52,11 @@ Claude Code・Hermes Agent など、どのエージェントもこのファイ�
 1. ロックされたファイル、`runs/`、`paper.md`、`goal.md`、`scripts/` を編集しない
 2. 許容誤差・目標値を変えない。合わないときは「再現不可（理由付き）」で終えてよい
 3. 論文に書かれていない選択をしたら、必ず `journal/decisions.md` に記録する
-4. 外側のループ（実験）では、1周で変えるのは1つだけ。変える前に仮説を書く
+4. 外側のループ（実験）では、1周で変えるのは1つだけ。変える前に、型・予測・外れたら何を捨てるかを付けた仮説を書く
 5. 失敗したら、直す前に失敗理由を `.agent/progress.md` に書く
 6. 予算（`lab.config.json` の `budget`）を超えたら止まって報告する
+7. 探索モード（`ledger.py` が表示する）では、試した型の微調整を続けない。未試行の型・診断実験・Reviewer のどれかに切り替える
+8. 「再現不可」にする前と、探索モードに入った最初の1回は、Reviewer を呼ぶ（`.agent/REVIEWER.md`）
 
 ## 5. 原理（なぜこの形なのか）
 
@@ -62,3 +66,6 @@ Claude Code・Hermes Agent など、どのエージェントもこのファイ�
 * **ループの3条件：** 終了条件（承認済みの主張）・進捗（progress.md の失敗理由）・打ち切り（budget）
 * **Checker はお願いではなくコード。** 守らせたいことは `scripts/check.py`・`compare.py`・フックで機械的に判定する
 * **状態はファイルに持つ。** 会話の記憶は消えても、progress.md から誰でも（どのエージェントでも）再開できる
+* **失敗理由だけを次の入力にすると、前の周の微調整を続ける局所探索になる。** だから仮説に型と予測を付け、
+  外れが続いた型を排除し、停滞したら方向を変える。方向を変える判断は仕組み（`ledger.py`・`run.py`）が行い、
+  どちらへ変えるかは、診断実験と Reviewer が持ち込む新しい情報で決める

@@ -4,6 +4,7 @@
       "Bash(python scripts/check.py)",
       "Bash(python scripts/run.py *)",
       "Bash(python scripts/compare.py *)",
+      "Bash(python scripts/ledger.py *)",
       "Bash(python scripts/new_paper.py *)"
     ],
     "deny": [

@@ -1,7 +1,14 @@
 {
   "paper": "example_es",
   "claim": "C3",
-  "hypothesis": "論文5章の設定をそのまま使い、c は decisions.md D1 の 0.85 とする",
+  "kind": "attempt",
+  "hypothesis": {
+    "text": "論文5章の設定をそのまま使い、c は decisions.md D1 の 0.85 とする",
+    "type": "未確定点の解釈",
+    "parent": "root",
+    "prediction": {"metric": "median_evals_to_target", "op": "approx", "value": 1000, "rel_tol": 0.2},
+    "falsified_if": "予測が外れたら、論文どおりの設定と c=0.85 の組み合わせでは表1は再現しないとみなし、D1 か D2 を疑う"
+  },
   "entry": "src.example_es.algorithm.es:run_experiment",
   "params": {
     "dim": 10,
@@ -13,7 +20,7 @@
     "max_evals": 20000,
     "f_target": 1e-8
   },
-  "seeds": [0, 1, 2, 3, 4],
+  "seeds": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
   "aggregate": {
     "median_evals_to_target": ["median", "evals_to_target"],
     "reach_rate": ["rate", "reached"]

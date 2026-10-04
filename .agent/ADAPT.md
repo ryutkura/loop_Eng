@@ -42,7 +42,10 @@ Hermes など他のエージェントでは不要。
    * `project_name`、`dirs`（フォルダ名を変えたなら実際のフォルダも移動する）
    * `check_commands`（言語に合わせる。例：`["npm", "test"]`、`["cargo", "test"]`、`["pytest", "-q"]`）
    * `pure_layer`（層の名前と、その層で禁止する import。Python 以外なら下記の注意を参照）
-   * `budget`（実験が重いなら回数を減らす）
+   * `budget`（実験が重いなら回数を減らす。`max_diagnostic_runs_per_claim` は診断実験の上限）
+   * `explore.hypothesis_types`（仮説の型の一覧。題材で疑う場所の分類に合わせる。細かすぎると排除が効かず、粗すぎると方向転換を強制しすぎる）
+   * `explore` の停滞の判定（`stagnation_window`・`min_rel_improvement`・`max_failed_predictions_per_type`）
+   * `stats`（`min_seeds`・信頼区間。乱数を使わない題材なら `min_seeds` を 1 にする）
 2. `.agent/templates/` の雛形の言葉を題材に合わせる
 3. `AGENTS.md` の部屋の地図と合言葉の表を、新しい名前に合わせる（**構造と規則の数は減らさない**）
 4. `.agent/goal.md` をこのプロジェクトの目的で書き直す（書いた後、ユーザーに確認してもらう）

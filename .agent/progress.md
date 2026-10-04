@@ -13,13 +13,14 @@ example_es（キット付属のサンプル）
 
 ## 状態表
 
-| 題材 | ID | 状態 | 証拠 | 外側ループの回数 |
-| --- | --- | --- | --- | --- |
-| example_es | C1 | 検証済み | check / tests/example_es/claims/test_c1_step_size.py | ― |
-| example_es | C2 | 検証済み | check / tests/example_es/claims/test_c2_invariance.py | ― |
-| example_es | C3 | 未検証 | （`python scripts/run.py experiments/example_es/c3_sphere_10d.json` で確かめられる） | 0 |
+| 題材 | ID | 状態 | 証拠 | 外側ループの回数 | モード |
+| --- | --- | --- | --- | --- | --- |
+| example_es | C1 | 検証済み | check / tests/example_es/claims/test_c1_step_size.py | ― | ― |
+| example_es | C2 | 検証済み | check / tests/example_es/claims/test_c2_invariance.py | ― | ― |
+| example_es | C3 | 未検証 | （`python scripts/run.py experiments/example_es/c3_sphere_10d.json` で確かめられる） | 0 | 通常 |
 
 状態は「未検証」「検証済み」「再現不可」のどれか。再現不可なら、証拠欄に理由と試した run を書く。
+モード（数値の主張だけ）は `python scripts/ledger.py <名前> <ID>` の表示をそのまま写す（通常／探索）。自分で決めない。
 
 ## 直近の失敗理由
 

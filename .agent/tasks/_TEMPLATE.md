@@ -21,6 +21,10 @@
 
 （journal/decisions.md の ID。例：D1, D3）
 
+## 試した仮説の型
+
+（数値の主張だけ。`python scripts/ledger.py <名前> <主張ID>` の「型ごとの集計」を見て更新する）
+
 ## 作業メモ
 
 （試したこと・分かったこと。長くなったら journal/ へ）

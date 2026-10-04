@@ -85,6 +85,7 @@ Claude Code では、途中で `python scripts/adapt_mode.py on` の実行を頼
 python scripts/check.py
 python scripts/run.py experiments/example_es/c3_sphere_10d.json
 python scripts/compare.py runs/<できたフォルダ>
+python scripts/ledger.py example_es C3
 ```
 
 ---
@@ -95,12 +96,13 @@ python scripts/compare.py runs/<できたフォルダ>
 .
 ├── AGENTS.md              エージェントへの指示の正本（合言葉・部屋の地図・絶対ルール）
 ├── CLAUDE.md              AGENTS.md を読み込むだけのポインタ
-├── lab.config.json        フォルダ名・テストコマンド・予算（組み替えの中心）
+├── lab.config.json        フォルダ名・テストコマンド・予算・仮説の型・停滞の判定（組み替えの中心）
 ├── .agent/                🧭 司令室
 │   ├── PROTOCOL.md        開発ループの手順（フェーズ0〜5）
 │   ├── ADAPT.md           組み替えの手順
 │   ├── goal.md            目的と完了の定義（人間だけ）
 │   ├── guardrails.md      禁止事項・理由・強制の仕組み（人間だけ）
+│   ├── REVIEWER.md        外側のループの独立レビューの手順（人間だけ）
 │   ├── progress.md        現在地と状態表（State）
 │   ├── tasks/             1主張1タスク
 │   ├── templates/         new_paper.py が使う雛形
@@ -111,9 +113,9 @@ python scripts/compare.py runs/<できたフォルダ>
 ├── sandbox/               🔧 デバッグ場（git 管理外）
 ├── experiments/<名前>/    🏃 実行場（実験の設定 JSON）
 ├── runs/                  📦 結果の格納庫（run.py だけが書く）
-├── journal/               📓 記録室（日ごとのノート・decisions.md）
-├── scripts/               ⚙ check / run / compare / new_paper / lock / adapt_mode
-└── .claude/settings.json  Claude Code 用の権限とフック
+├── journal/               📓 記録室（日ごとのノート・decisions.md・reviews/）
+├── scripts/               ⚙ check / run / compare / ledger / new_paper / lock / adapt_mode
+└── .claude/               Claude Code 用の権限とフック（settings.json）・Reviewer（agents/reviewer.md）
 ```
 
 ---
@@ -123,12 +125,28 @@ python scripts/compare.py runs/<できたフォルダ>
 | ループの部品 | このキットでの担当 |
 | --- | --- |
 | 終了条件 | 人間が承認した `claims.md` と `targets.json` |
-| 進捗（失敗を次の入力に） | `progress.md` の「直近の失敗理由」と `journal/` の仮説 |
-| 打ち切り | `lab.config.json` の `budget`、ハーネスのターン上限。「再現不可」も正式な終わり方 |
+| 進捗（失敗を次の入力に） | `progress.md` の「直近の失敗理由」と、`runs/` から組み立てる仮説台帳（`scripts/ledger.py`） |
+| 打ち切り | `lab.config.json` の `budget`（run.py が超過を拒否）、ハーネスのターン上限。「再現不可」も正式な終わり方 |
 | Checker（形式） | `scripts/check.py`：ロック・結果の改変・依存方向・テスト |
-| Checker（数値） | `scripts/compare.py`：承認済みの目標値との比較 |
+| Checker（数値） | `scripts/compare.py`：承認済みの目標値との比較。種のブートストラップ区間で「判定不能」も返す |
 | State | `progress.md`・`locks.json`・`runs/INDEX.jsonl`（すべてファイル） |
 | ループは2重 | 内側：実装 ⇄ check（速い）／外側：実験 ⇄ compare（遅い・1周1変更） |
+| 方向転換 | 停滞を検知したら探索モード。試した型の微調整を拒否し、未試行の型か診断実験（`kind: diagnostic`）へ切り替えさせる |
+| 新しい情報 | 診断実験（パラメータを sweep して問題の性質を調べる）と、生の記録だけを読む Reviewer（`.agent/REVIEWER.md`） |
+
+### 局所解に陥らないための仕組み
+
+失敗理由だけを次の入力にすると、ループは「前の周の反省から微調整する」だけになり、同じ方向で行き詰まります。
+そこで外側のループに次を足しています。
+
+1. **仮説に型・予測・反証条件を付ける**：予測が外れたら仮説は否定されたと判定でき、「もう少し調整すれば」を続けない
+2. **予測が続けて外れた型は排除**：`lab.config.json` の `explore.max_failed_predictions_per_type` 回で、その型は使えなくなる
+3. **停滞したら探索モード**：直近 `stagnation_window` 回の最良が、それ以前から `min_rel_improvement` 以上近づいていなければ、
+   試した型は使えず、未試行の型か診断実験しか回せない
+4. **方向を変える根拠は新しい情報**：排除された型でも、その後の診断実験を `based_on` にすれば続けられる
+5. **独立した Reviewer**：Proposer の説明ではなく `runs/` の生データから見落としと別の候補を出す
+
+判定はすべて `runs/`（run.py しか書けず、check.py が改変を検出する）から毎回組み立てるので、エージェントが台帳だけを書き換えることはできません。
 
 ## 何で守らせているか（強制の範囲）
 
@@ -138,7 +156,10 @@ python scripts/compare.py runs/<できたフォルダ>
 | 結果（runs/）を直さない | フックで拒否＋check で検出 | check で検出 |
 | lock.py を自分で実行しない | フックと権限設定で拒否 | 文章のみ |
 | core/ の依存方向 | check で検出 | check で検出 |
-| 論文に無い選択を記録する／1周1変更 | 文章のみ | 文章のみ |
+| 1周1変更（params） | run.py が拒否 | run.py が拒否 |
+| 予測を書く・排除された型や停滞中の微調整をしない・予算を守る | run.py が拒否 | run.py が拒否 |
+| 仮説の型の一覧・Reviewer の基準を変えない | フックで拒否 | 文章のみ（git 差分で確認） |
+| 論文に無い選択を記録する／探索モードで Reviewer を呼ぶ／型を正直に申告する | 文章のみ | 文章のみ |
 
 限界も書いておきます。
 

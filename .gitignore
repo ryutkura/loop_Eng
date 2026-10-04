@@ -3,3 +3,7 @@ __pycache__/
 sandbox/*
 !sandbox/.gitkeep
 .claude/settings.local.json
+# 秘密情報（API キーなど）は .env に置き、指示ファイルや設定ファイルには書かない
+.env
+.env.*
+!.env.example

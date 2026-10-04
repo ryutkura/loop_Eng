@@ -8,6 +8,7 @@
     "runs": "runs",
     "journal": "journal",
     "sandbox": "sandbox",
+    "evidence": "evidence",
     "agent": ".agent"
   },
   "check_commands": [

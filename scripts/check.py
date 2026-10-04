@@ -112,6 +112,17 @@ def check_evidence(config: dict) -> list[str]:
                     f"[証拠] {rel(progress)}:{lineno} の `{ref}` は存在しません。"
                     f"証拠欄には scripts/run.py が作った実在の run フォルダだけを書いてください。"
                 )
+    # コード以外の仕事の証拠（スクリーンショット・出典一覧など）。dirs.evidence がある場合だけ
+    evidence_name = config["dirs"].get("evidence")
+    if evidence_name:
+        ev_pattern = re.compile(rf"{re.escape(evidence_name)}/[\w.\-/]+")
+        for lineno, line in enumerate(progress.read_text(encoding="utf-8").splitlines(), 1):
+            for ref in ev_pattern.findall(line):
+                if not (ROOT / ref.rstrip("/.")).exists():
+                    errors.append(
+                        f"[証拠] {rel(progress)}:{lineno} の `{ref}` は存在しません。"
+                        f"証拠欄には実在するファイルだけを書いてください。証拠が無いなら、状態を「検証済み」にしてはいけません。"
+                    )
     return errors
 
 

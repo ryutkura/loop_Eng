@@ -116,6 +116,7 @@ python scripts/ledger.py example_es C3
 ├── sandbox/               🔧 デバッグ場（git 管理外）
 ├── experiments/<名前>/    🏃 実行場（実験の設定 JSON）
 ├── runs/                  📦 結果の格納庫（run.py だけが書く）
+├── evidence/<名前>/       🧾 証拠置き場（コード以外の仕事のスクリーンショット・出典一覧など）
 ├── journal/               📓 記録室（日ごとのノート・decisions.md・reviews/）
 ├── scripts/               ⚙ check / run / compare / ledger / new_paper / lock / adapt_mode
 └── .claude/               Claude Code 用の権限とフック（settings.json）・Reviewer（agents/reviewer.md）
